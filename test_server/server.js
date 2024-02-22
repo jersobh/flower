@@ -14,8 +14,6 @@ const posts = [];
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  console.log(req.body);
-  console.log(username)
   if (users[username] && users[username].password === password) {
     // In a real application, use a more secure way to generate tokens
     const token = `${username}-token-${new Date().getTime()}`;

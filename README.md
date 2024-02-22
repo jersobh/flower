@@ -12,8 +12,6 @@ This testing framework is designed to facilitate automated testing of RESTful AP
 
 ## TODOs
 
-- Add support for parallel requests
-- Better reporting
 
 ## Getting Started
 
@@ -59,6 +57,12 @@ To run your tests, execute the test runner from the command line:
 
 ```bash
 npm run test
+```
+
+or, to run all tests in parallel:
+
+```bash
+npm run test-parallel
 ```
 
 

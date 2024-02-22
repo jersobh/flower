@@ -5,29 +5,31 @@ import * as fs from 'fs';
 import * as path from 'path';
 import pc from 'picocolors';
 
+interface Context {
+    [key: string]: any;
+}
 
 function getValueByPath(obj: any, pathString: string): any {
     return pathString.split('.').reduce((acc, part) => acc && acc[part] !== undefined ? acc[part] : null, obj);
 }
 
-async function runTestFlowForFile(filePath: string) {
+async function runTestFlowForFile(filePath: string): Promise<string> {
     const flow = parseYaml(filePath);
     if (!flow) {
-        console.error(pc.red(`Failed to parse YAML file: ${filePath}`));
-        return;
+        return pc.red(`Failed to parse YAML file: ${filePath}`);
     }
+    const outputBuffer: string[] = [];
+    const log = (message: string) => outputBuffer.push(message);
 
     for (const testName in flow) {
-        console.log(`Running test: ${pc.cyan(testName)}`);
+        const context: Context = {};
+        log(`Running test: ${pc.cyan(testName)}`);
         const steps = flow[testName];
-        const context: Record<string, any> = {};
 
         for (const step of steps) {
             const { name, url, method, params, assertions, headers, saveToContext } = step;
-
             try {
-                console.log(`   Running step: ${pc.cyan(name)}`);
-
+                log(`   Running step: ${pc.cyan(name)}`);
                 const response = await httpRequest({ url, method, params, headers, context });
 
                 if (saveToContext) {
@@ -42,30 +44,44 @@ async function runTestFlowForFile(filePath: string) {
                         const actualValue = getValueByPath(response, assertion.target);
                         try {
                             performAssertion(assertion, actualValue);
-                            console.log(`       Assertion ${index + 1}: ${pc.green('Passed')}`);
+                            log(`       Assertion ${index + 1}: ${pc.green('Passed')}`);
                         } catch (error) {
-                            console.error(`       Assertion ${index + 1}: ${pc.red('Failed')} - ${error}`);
+                            const message = (error as Error).message;
+                            log(`       Assertion ${index + 1}: ${pc.red('Failed')} - ${message}`);
                         }
                     });
                 }
-
             } catch (error) {
-                console.error(pc.bgRed(`    Step "${name}" encountered an error: ${error}`));
+                const message = (error as Error).message;
+                log(pc.bgRed(`    Step "${name}" encountered an error: ${message}`));
             }
         }
     }
+    return outputBuffer.join('\n');
 }
 
-async function runAllTestFlows() {
+async function runAllTestFlows(runInParallel: boolean) {
     const testsDir = './tests';
-    const files = fs.readdirSync(testsDir);
+    const files = fs.readdirSync(testsDir).filter(file => file.endsWith('.yaml') || file.endsWith('.yml'));
+    console.log(`Running ${files.length} test flows...`);
+    console.log('Parallel mode: ', runInParallel);
 
-    for (const file of files) {
-        if (file.endsWith('.yaml') || file.endsWith('.yml')) {
+    if (runInParallel) {
+        const promises = files.map(file => runTestFlowForFile(path.join(testsDir, file)));
+        const results = await Promise.all(promises);
+        results.forEach((result, index) => {
+            console.log(pc.bgYellow(`\n${files[index]}`));
+            console.log(result);
+        });
+    } else {
+        for (const file of files) {
             console.log(pc.bgYellow(`\nProcessing file: ${file}`));
-            await runTestFlowForFile(path.join(testsDir, file));
+            const result = await runTestFlowForFile(path.join(testsDir, file));
+            console.log(result);
         }
     }
+    console.log(`Test execution complete.`);
 }
 
-runAllTestFlows().catch(console.error);
+const runInParallel = process.argv.includes('--parallel');
+runAllTestFlows(runInParallel).catch(console.error);

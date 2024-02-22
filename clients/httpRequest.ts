@@ -58,8 +58,9 @@ export default async function httpRequest({ url, method, params, headers, contex
     try {
         const response = await axios(config);
         return response;
-    } catch (error: any) {
-        console.error(`${pc.red('ERROR')} ${error.message}`);
-        throw error.message;
+    } catch (error) {
+        const message = (error as Error).message;
+        console.error(`${pc.red('ERROR')} ${message}`);
+        throw message;
     }
 }

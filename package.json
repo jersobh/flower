@@ -6,6 +6,7 @@
     "scripts": {
         "build": "tsc",
         "test": "ts-node flowerRunner.ts",
+        "test-parallel": "ts-node flowerRunner.ts -- --parallel",
         "start": "node dist/flowerRunner.js",
         "lint": "eslint '**/*.ts' --fix"
     },
