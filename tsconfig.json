@@ -21,7 +21,7 @@
     },
     "include": [
       "./*.ts",
-      "./methods/**/*.ts",
+      "clients/**/*.ts",
       "./tests/**/*.ts",
       "./utilities/**/*.ts"
     ],

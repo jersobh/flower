@@ -1,32 +1,13 @@
 import { parseYaml } from './utilities/yamlParser';
 import { performAssertion } from './utilities/assertions';
-import httpRequest from './methods/httpRequest';
+import httpRequest from './clients/httpRequest';
 import * as fs from 'fs';
 import * as path from 'path';
 import pc from 'picocolors';
 
-interface Context {
-    [key: string]: any;
-}
-
-interface Params {
-    [key: string]: any;
-}
 
 function getValueByPath(obj: any, pathString: string): any {
     return pathString.split('.').reduce((acc, part) => acc && acc[part] !== undefined ? acc[part] : null, obj);
-}
-
-function replaceContextValues(value: string, context: Context): string {
-    if (typeof value === 'string') {
-        return value.replace(/\{context\.(\w+)\}/g, (match, key) => {
-            if (context[key] !== undefined) {
-                return context[key];
-            }
-            return match;
-        });
-    }
-    return value;
 }
 
 async function runTestFlowForFile(filePath: string) {
@@ -44,26 +25,10 @@ async function runTestFlowForFile(filePath: string) {
         for (const step of steps) {
             const { name, url, method, params, assertions, headers, saveToContext } = step;
 
-
-            const processedUrl = replaceContextValues(url, context);
-
-            const processedParams: Params = {};
-            Object.keys(params || {}).forEach(key => {
-                processedParams[key] = replaceContextValues(params[key], context);
-            });
-
-
-            const processedHeaders: Record<string, string> = {};
-            if (headers && typeof headers === 'object' && !Array.isArray(headers)) {
-                Object.keys(headers).forEach(key => {
-                    processedHeaders[key] = replaceContextValues(headers[key] as string, context);
-                });
-            }
-
             try {
                 console.log(`   Running step: ${pc.cyan(name)}`);
 
-                const response = await httpRequest({ url: processedUrl, method, params: processedParams, headers: processedHeaders });
+                const response = await httpRequest({ url, method, params, headers, context });
 
                 if (saveToContext) {
                     Object.keys(saveToContext).forEach((key: string) => {

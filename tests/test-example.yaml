@@ -1,0 +1,74 @@
+## This example uses the test_server to emulate the behavior of a real API
+testAuthenticationAndPostLifecycle:
+  - name: "Authenticate User"
+    url: "http://localhost:3000/login"
+    method: "POST"
+    params:
+      username: "testuser"
+      password: "testpass"
+    assertions:
+      - type: "equal"
+        target: "status"
+        expected: 200
+    saveToContext:
+      authToken: "data.token"
+
+  - name: "Create a New Post"
+    url: "http://localhost:3000/posts"
+    method: "POST"
+    headers:
+      Authorization: "Bearer {context.authToken}"
+    params:
+      title: "My First Post"
+      content: "This is the content of my first post."
+    assertions:
+      - type: "equal"
+        target: "status"
+        expected: 201
+    saveToContext:
+      postId: "data.id"
+
+  - name: "Update the Post"
+    url: "http://localhost:3000/posts/{context.postId}"
+    method: "PUT"
+    headers:
+      Authorization: "Bearer {context.authToken}"
+    params:
+      title: "My Updated Post"
+      content: "This is the updated content of my post."
+    assertions:
+      - type: "equal"
+        target: "status"
+        expected: 200
+      - type: "equal"
+        target: "data.title"
+        expected: "My Updated Post"
+
+  - name: "Fetch the Updated Post"
+    url: "http://localhost:3000/posts/{context.postId}"
+    method: "GET"
+    headers:
+      Authorization: "Bearer {context.authToken}"
+    assertions:
+      - type: "equal"
+        target: "status"
+        expected: 200
+      - type: "equal"
+        target: "data.title"
+        expected: "My Updated Post"
+
+  - name: "List All Posts"
+    url: "http://localhost:3000/posts"
+    method: "GET"
+    headers:
+      Authorization: "Bearer {context.authToken}"
+    assertions:
+      - type: "equal"
+        target: "status"
+        expected: 200
+      - type: "greaterThan"
+        target: "data.length"
+        expected: 0
+      - type: "equal"
+        target: "data.0.title"
+        expected: "My Updated Post"

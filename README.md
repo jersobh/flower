@@ -25,6 +25,8 @@ cd flower
 npm install
 ```
 
+Check out the `test_server` directory and the `test-example.yaml` for a complete flow example.
+
 
 ## Writing Test Configurations
 
