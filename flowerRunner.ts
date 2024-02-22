@@ -47,13 +47,13 @@ async function runTestFlowForFile(filePath: string): Promise<string> {
                             log(`       Assertion ${index + 1}: ${pc.green('Passed')}`);
                         } catch (error) {
                             const message = (error as Error).message;
-                            log(`       Assertion ${index + 1}: ${pc.red('Failed')} - ${message}`);
+                            log(`       Assertion ${index + 1}: ${pc.red('Failed')} - ${message || error}`);
                         }
                     });
                 }
             } catch (error) {
                 const message = (error as Error).message;
-                log(pc.bgRed(`    Step "${name}" encountered an error: ${message}`));
+                log(pc.bgRed(`    Step "${name}" encountered an error: ${message || error}`));
             }
         }
     }
@@ -63,7 +63,7 @@ async function runTestFlowForFile(filePath: string): Promise<string> {
 async function runAllTestFlows(runInParallel: boolean) {
     const testsDir = './tests';
     const files = fs.readdirSync(testsDir).filter(file => file.endsWith('.yaml') || file.endsWith('.yml'));
-    console.log(`Running ${files.length} test flows...`);
+    console.log(`\nRunning ${files.length} test flows...`);
     console.log('Parallel mode: ', runInParallel);
     let hasFailures = false;
 
@@ -87,11 +87,12 @@ async function runAllTestFlows(runInParallel: boolean) {
             }
         }
     }
+
     if (hasFailures) {
-        console.error(pc.bgRed('Some tests failed. Exiting with error code 1.'));
+        console.error(pc.bgRed('\nSome tests failed. Exiting with error code 1.'));
         process.exit(1);
     }
-    console.log(pc.bgGreen('Test execution completed successfully.'));
+    console.log(pc.bgGreen('\nTest execution completed successfully.'));
 }
 
 const runInParallel = process.argv.includes('--parallel');
