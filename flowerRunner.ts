@@ -65,6 +65,7 @@ async function runAllTestFlows(runInParallel: boolean) {
     const files = fs.readdirSync(testsDir).filter(file => file.endsWith('.yaml') || file.endsWith('.yml'));
     console.log(`Running ${files.length} test flows...`);
     console.log('Parallel mode: ', runInParallel);
+    let hasFailures = false;
 
     if (runInParallel) {
         const promises = files.map(file => runTestFlowForFile(path.join(testsDir, file)));
@@ -72,15 +73,25 @@ async function runAllTestFlows(runInParallel: boolean) {
         results.forEach((result, index) => {
             console.log(pc.bgYellow(`\n${files[index]}`));
             console.log(result);
+            if (result.includes('Failed')) {
+                hasFailures = true;
+            }
         });
     } else {
         for (const file of files) {
             console.log(pc.bgYellow(`\nProcessing file: ${file}`));
             const result = await runTestFlowForFile(path.join(testsDir, file));
             console.log(result);
+            if (result && result.includes('Failed')) {
+                hasFailures = true;
+            }
         }
     }
-    console.log(`Test execution complete.`);
+    if (hasFailures) {
+        console.error(pc.bgRed('Some tests failed. Exiting with error code 1.'));
+        process.exit(1);
+    }
+    console.log(pc.bgGreen('Test execution completed successfully.'));
 }
 
 const runInParallel = process.argv.includes('--parallel');
