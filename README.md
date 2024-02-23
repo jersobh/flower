@@ -1,12 +1,12 @@
 # Flower API Testing Framework
 
-This testing framework is designed to facilitate automated testing of RESTful APIs through configurable YAML files. It supports making HTTP requests, asserting response data, and dynamically managing test data.
+This testing framework is designed to facilitate automated testing of RESTful APIs through configurable YAML or JSON files. It supports making HTTP requests, asserting response data, and dynamically managing test data.
 
 ## Features
 
 - Allows assertions on response status codes, headers, and body content.
 - Supports dynamic data through context, allowing data from one response to be used in subsequent requests.
-- Configurable through YAML files for easy test management and readability.
+- Configurable through YAML or JSON files for easy test management and readability.
 
 
 ## TODOs
@@ -23,13 +23,15 @@ cd flower
 npm install
 ```
 
-Check out the `test_server` directory and the `test-example.yaml` for a complete flow example.
+Check out the `test_server` directory and the `test-example.yaml` for a complete authentication and CRUD flow example.
 
 
 ## Writing Test Configurations
 
-Test configurations are defined in YAML files. Here's an example configuration for testing post creation and retrieval:
+Test configurations are defined in YAML or JSON files. 
+Here's an example configuration for testing post creation and retrieval:
 
+### YAML configuration
 ```yaml
 testPostLifecycle:
   - name: "Create a New Post"
@@ -50,6 +52,38 @@ testPostLifecycle:
       postId: "data.id"
 ```
 
+### JSON configuration
+```json
+{
+    "testPostLifecycle": [
+        {
+            "name": "Create a New Post",
+            "url": "https://jsonplaceholder.typicode.com/posts",
+            "method": "POST",
+            "params": {
+                "title": "foo",
+                "body": "bar",
+                "userId": 1
+            },
+            "assertions": [
+                {
+                    "type": "equal",
+                    "target": "status",
+                    "expected": 201
+                },
+                {
+                    "type": "equal",
+                    "target": "data.title",
+                    "expected": "foo"
+                }
+            ],
+            "saveToContext": {
+                "postId": "data.id"
+            }
+        }
+    ]
+}
+```
 
 ## Running Tests
 

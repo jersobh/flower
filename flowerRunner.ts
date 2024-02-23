@@ -1,12 +1,27 @@
 import { parseYaml } from './utilities/yamlParser';
+import { parseJson } from './utilities/jsonParser';
 import { performAssertion } from './utilities/assertions';
 import httpRequest from './clients/httpRequest';
 import * as fs from 'fs';
 import * as path from 'path';
 import pc from 'picocolors';
 
+
 interface Context {
     [key: string]: any;
+}
+
+function parseFile(filePath: string) {
+    const extension = filePath.split('.').pop()?.toLowerCase();
+
+    if (extension === 'yaml' || extension === 'yml') {
+        return parseYaml(filePath);
+    } else if (extension === 'json') {
+        return parseJson(filePath);
+    } else {
+        console.error(pc.red(`File extension ${extension} not supported`));
+        return null;
+    }
 }
 
 function getValueByPath(obj: any, pathString: string): any {
@@ -14,9 +29,9 @@ function getValueByPath(obj: any, pathString: string): any {
 }
 
 async function runTestFlowForFile(filePath: string): Promise<string> {
-    const flow = parseYaml(filePath);
+    const flow = parseFile(filePath)
     if (!flow) {
-        return pc.red(`Failed to parse YAML file: ${filePath}`);
+        return pc.red(`Failed to parse file: ${filePath}`);
     }
     const outputBuffer: string[] = [];
     const log = (message: string) => outputBuffer.push(message);
@@ -62,7 +77,7 @@ async function runTestFlowForFile(filePath: string): Promise<string> {
 
 async function runAllTestFlows(runInParallel: boolean) {
     const testsDir = './tests';
-    const files = fs.readdirSync(testsDir).filter(file => file.endsWith('.yaml') || file.endsWith('.yml'));
+    const files = fs.readdirSync(testsDir).filter(file => file.endsWith('.yaml') || file.endsWith('.yml') || file.endsWith('.json'));
     console.log(`\nRunning ${files.length} test flows...`);
     console.log('Parallel mode: ', runInParallel);
     let hasFailures = false;
