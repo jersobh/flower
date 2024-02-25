@@ -20,7 +20,7 @@ interface Assertion {
     expected: any;
 }
 
-export function parseJson(filePath: string) {
+export async function parseJson(filePath: string) {
     try {
         const fileContents = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(fileContents) as TestFlow;

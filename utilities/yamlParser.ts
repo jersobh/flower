@@ -20,7 +20,7 @@ interface Assertion {
     target: string;
     expected: any;
 }
-export function parseYaml(filePath: string) {
+export async function parseYaml(filePath: string) {
     try {
         const fileContents = fs.readFileSync(filePath, 'utf8');
         return yaml.load(fileContents) as TestFlow;
