@@ -1,0 +1,11 @@
+stages:
+  - test
+
+api_test:
+  stage: test
+  image: node:14
+  script:
+    - npm install
+    - npm test
+  only:
+    - main

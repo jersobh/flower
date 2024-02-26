@@ -72,3 +72,14 @@ testAuthenticationAndPostLifecycle:
       - type: "equal"
         target: "data.0.title"
         expected: "My Updated Post"
+
+  - name: "Delete Post"
+    url: "http://localhost:3000/posts/{context.postId}"
+    method: "DELETE"
+    headers:
+      Authorization: "Bearer {context.authToken}"
+    assertions:
+      - type: "equal"
+        target: "status"
+        expected: 200
+  

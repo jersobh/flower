@@ -74,6 +74,18 @@ app.get('/posts/:id', async (req, res) => {
   }
 });
 
+app.delete('/posts/:id', async (req, res) => {
+  const postId = parseInt(req.params.id);
+  const postIndex = posts.findIndex(p => p.id === postId);
+  if (postIndex > -1) {
+    posts.splice(postIndex, 1); // Remove the post from the array
+    await sleepRandom();
+    res.send('Post deleted successfully.');
+  } else {
+    res.status(404).send('Not Found');
+  }
+});
+
 app.get('/posts', async (req, res) => {
   await sleepRandom()
   res.json(posts);
