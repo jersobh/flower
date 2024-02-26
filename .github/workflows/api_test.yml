@@ -22,5 +22,11 @@ jobs:
       run: |
         cd test_server
         nohup npm start &
+    - name: Install test dependencies
+      run: |
+        cd ../
+        npm install
     - name: Run tests
-      run: npm test
+      run:
+        npm run test
+        
