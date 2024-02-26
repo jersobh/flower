@@ -14,7 +14,13 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '18'
-    - name: Install dependencies
-      run: npm install
+    - name: Install server dependencies
+      run: |
+        cd test_server
+        npm install
+    - name: Start test server
+      run: |
+        cd test_server
+        nohup npm start &
     - name: Run tests
       run: npm test

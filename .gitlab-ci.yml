@@ -3,9 +3,13 @@ stages:
 
 api_test:
   stage: test
-  image: node:14
-  script:
+  image: node:18
+  before_script:
+    - cd test_server
     - npm install
-    - npm test
+    - nohup npm start &
+  script:
+    - cd ../
+    - npm run test
   only:
     - main
