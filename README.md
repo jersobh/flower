@@ -1,7 +1,7 @@
 # Flower API Testing Framework
 
 
-![Alt text](https://repository-images.githubusercontent.com/761193152/8ecdaaa6-140e-4dc0-866a-b9cf78674abf "Flower framework")
+![Alt text](https://repository-images.githubusercontent.com/761193152/f3ec7fb7-f427-4a38-a8a0-cb7dd14e92e6 "Flower framework")
 
 Flower is designed to facilitate automated testing of RESTful APIs through configurable YAML or JSON files. It supports making HTTP requests, asserting response data, and dynamically managing test data.
 
